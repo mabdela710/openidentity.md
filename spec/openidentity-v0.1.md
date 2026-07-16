@@ -3,6 +3,7 @@ title: OpenIdentity Specification
 version: 0.1
 status: draft
 format: openidentity.md
+creator: https://github.com/Moeabdelaziz007
 ---
 
 # OpenIdentity v0.1
@@ -10,6 +11,10 @@ format: openidentity.md
 OpenIdentity is a portable identity manifest for AI agents. It acts as a discovery layer for identity, authorization, skills, tools, memory references, wallet links, and human verification.
 
 An OpenIdentity manifest is intended to travel with an agent, be published at a stable location, or be referenced by systems that need to understand who or what an agent represents before granting access, invoking tools, sharing memory, or relying on claims.
+
+## Founder and creator
+
+OpenIdentity was founded and created by [Moe Abdelaziz](https://github.com/Moeabdelaziz007).
 
 ## 1. Purpose and non-goals
 
