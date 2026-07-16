@@ -132,9 +132,13 @@ tools:
     name: example-tools
     url: https://mcp.example.com
 memory:
-  - type: index
-    name: public-knowledge-index
-    url: https://example.com/memory/public
+  - provider: example-memory
+    type: vector
+    uri: https://example.com/memory/public-index
+    access: public
+    expires_at: null
+    description: Public knowledge index used for retrieval-augmented responses.
+    schema: https://example.com/schemas/memory-index.json
 wallets:
   - type: payment-link
     url: https://pay.example.com/example-assistant
@@ -163,13 +167,50 @@ The Markdown body SHOULD explain the structured metadata in prose. It MAY includ
 
 The body SHOULD be safe to display to humans and safe for LLMs to consume as context.
 
-## 5. Security model
+## 5. Memory references
+
+OpenIdentity memory entries define references to external memory sources, not raw stored memories. A memory entry MUST identify where an authorized reader or runtime can discover, request, or retrieve memory through the referenced provider. It MUST NOT embed private memory contents directly in the manifest.
+
+Memory entries MAY reference working memory, long-term memory, episodic logs, shared team memory, vector indexes, knowledge bases, files, or access brokers. Access to those resources remains governed by the referenced provider, authorization flow, consent policy, and any external security controls.
+
+Each memory entry SHOULD include:
+
+- `provider`: The memory provider, service, store, broker, or authority responsible for the referenced memory.
+- `type`: The memory category, such as `working`, `long_term`, `episodic`, `shared`, or `vector`.
+- `uri`: A stable URI for the memory reference, index, access broker, policy, or retrieval endpoint.
+- `access`: The access mode for the reference, such as `public`, `signed_url`, `oauth`, `capability_token`, or `private`.
+- `expires_at`: The expiration timestamp for temporary links or grants. Non-expiring public references MAY set this to `null` or omit it.
+- `description`: A human-readable summary of what the reference represents and how it should be used.
+- `schema`: An optional schema URI or inline schema descriptor for the referenced memory resource.
+
+Example:
+
+```yaml
+memory:
+  - provider: example-memory
+    type: vector
+    uri: https://example.com/memory/public-index
+    access: public
+    expires_at: null
+    description: Public knowledge index used for retrieval-augmented responses.
+    schema: https://example.com/schemas/memory-index.json
+  - provider: enterprise-memory-broker
+    type: episodic
+    uri: https://memory.example.com/grants/agent-session-123
+    access: oauth
+    expires_at: 2026-08-01T00:00:00Z
+    description: OAuth-protected episodic interaction logs available only with user consent.
+```
+
+Consumers MUST interpret memory entries as pointers and access instructions only. If a memory reference requires authorization, the consumer MUST obtain access through the declared provider or a compatible authorization flow rather than relying on any credential embedded in the OpenIdentity file.
+
+## 6. Security model
 
 OpenIdentity is a discovery and verification aid, not a secret store or standalone access-control system.
 
 ### Avoid embedding secrets
 
-An OpenIdentity manifest MUST NOT contain private keys, passwords, bearer tokens, API keys, wallet seed phrases, session cookies, recovery codes, or other secrets.
+An OpenIdentity manifest MUST NOT contain private memory contents, private keys, passwords, bearer tokens, refresh tokens, API keys, database credentials, wallet seed phrases, session cookies, recovery codes, or unscoped secrets.
 
 ### Use links
 
@@ -191,7 +232,7 @@ Any linked credential, claim, tool authorization, memory grant, or wallet associ
 
 Consumers MUST NOT treat a manifest's claims as true solely because they appear in the file. Consumers SHOULD verify signatures, domains, issuer trust, organization membership, consent, and runtime behavior before granting access or relying on sensitive claims.
 
-## 6. Versioning
+## 7. Versioning
 
 OpenIdentity starts with:
 
