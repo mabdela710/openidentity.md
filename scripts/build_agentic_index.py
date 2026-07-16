@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
 OUTPUT = DIST / "agentic-index.json"
+FRONTEND = ROOT / "frontend"
+FRONTEND_INDEX = FRONTEND / "agentic-index.json"
 
 DOCUMENTS = [
     ("README.md", "overview", "Human-facing project overview and quick start"),
@@ -17,6 +19,8 @@ DOCUMENTS = [
     ("docs/landing-page.md", "landing", "AxiomID landing page content and UI direction"),
     ("docs/mvp-poc-use-cases.md", "mvp-poc", "MVP, proof-of-concept, and use-case guide"),
     ("docs/indexing/agentic-indexing.md", "indexing", "Agentic indexing and discovery guide"),
+    ("docs/deploy/vercel.md", "deploy", "Vercel deployment instructions"),
+    ("docs/deploy/deployment-status.md", "deploy-status", "Latest deployment status and URL instructions"),
     ("spec/openidentity-v0.1.md", "spec", "OpenIdentity draft specification"),
     ("schema/openidentity.schema.json", "schema", "OpenIdentity JSON Schema"),
     ("examples/minimal.openidentity.md", "example", "Minimal manifest example"),
@@ -85,7 +89,14 @@ def build() -> dict:
 
 def main() -> None:
     DIST.mkdir(exist_ok=True)
-    OUTPUT.write_text(json.dumps(build(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    payload = json.dumps(build(), ensure_ascii=False, indent=2) + "\n"
+    OUTPUT.write_text(payload, encoding="utf-8")
+    if FRONTEND.exists():
+        FRONTEND_INDEX.write_text(payload, encoding="utf-8")
+        for filename in ("agentic.md", "agentic.txt"):
+            source = ROOT / filename
+            if source.exists():
+                (FRONTEND / filename).write_text(source.read_text(encoding="utf-8"), encoding="utf-8")
     print(f"Wrote {OUTPUT.relative_to(ROOT)}")
 
 

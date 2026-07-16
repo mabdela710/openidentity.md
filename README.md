@@ -50,6 +50,12 @@ openidentity.md/
     ar.json
   scripts/
     build_agentic_index.py
+  .github/
+    repository-settings.md
+    workflows/validate.yml
+  docs/deploy/
+    vercel.md
+    deployment-status.md
   dist/
     agentic-index.json
   spec/
@@ -78,6 +84,8 @@ openidentity.md/
 | `frontend/` | Static bilingual UI prototype with light/dark mode | نموذج واجهة ثابت ثنائي اللغة مع وضع فاتح/داكن |
 | `i18n/` | Translation seed files for English and Arabic | ملفات ترجمة أولية للعربية والإنجليزية |
 | `scripts/build_agentic_index.py` | Builds `dist/agentic-index.json` for discovery | ينشئ فهرس الاكتشاف `dist/agentic-index.json` |
+| `.github/repository-settings.md` | GitHub description, topics, About, and branch-protection checklist | إعداد وصف GitHub والوسوم والحماية |
+| `docs/deploy/vercel.md` | Vercel deployment instructions and expected URL pattern | تعليمات النشر على Vercel ونمط الرابط المتوقع |
 | `spec/openidentity-v0.1.md` | Human-readable v0.1 specification | مواصفة v0.1 قابلة للقراءة |
 | `schema/openidentity.schema.json` | JSON Schema for validation | مخطط JSON للتحقق |
 | `examples/` | Minimal, standard, and full manifests | أمثلة مختصرة وقياسية وكاملة |
@@ -184,6 +192,13 @@ Use recognizable protocol badges and logo slots as a trust-building marketing pa
 The MVP should focus on consent-first profile creation, bilingual rendering, light/dark mode, manifest validation, search, verification states, protocol badges, access-request flows, and the static frontend prototype in [`frontend/index.html`](frontend/index.html). The full proof-of-concept journey, enterprise use cases, and ethical growth model are documented in [`docs/mvp-poc-use-cases.md`](docs/mvp-poc-use-cases.md).
 
 يركز المنتج الأولي على إنشاء الملفات بالموافقة، العرض بالعربية والإنجليزية، الوضع الفاتح والداكن، التحقق من الملفات، البحث، حالات التحقق، شارات البروتوكولات، ومسارات طلب الوصول. تم توثيق رحلة إثبات المفهوم وحالات الاستخدام المؤسسية ونموذج النمو الأخلاقي في [`docs/mvp-poc-use-cases.md`](docs/mvp-poc-use-cases.md).
+
+
+### Deployment and GitHub Setup
+
+The frontend is deploy-ready for Vercel through [`vercel.json`](vercel.json) and the npm scripts in [`package.json`](package.json). Use [`docs/deploy/vercel.md`](docs/deploy/vercel.md) for setup, and use [`.github/repository-settings.md`](.github/repository-settings.md) to configure the GitHub repository description, website URL, topics/tags, branch protection, Issues, and Discussions. The latest deployment attempt/status is tracked in [`docs/deploy/deployment-status.md`](docs/deploy/deployment-status.md).
+
+تم تجهيز الواجهة للنشر على Vercel عبر [`vercel.json`](vercel.json) وسكربتات [`package.json`](package.json). استخدم [`docs/deploy/vercel.md`](docs/deploy/vercel.md) للنشر، و[`.github/repository-settings.md`](.github/repository-settings.md) لإعداد وصف المستودع والوسوم والحماية وIssues وDiscussions.
 
 ### Agent Discovery Indexes
 
