@@ -73,11 +73,15 @@ Model Context Protocol (MCP) tools describe callable capabilities made available
 
 OpenIdentity SHOULD NOT duplicate the full MCP tool schema when a canonical MCP endpoint or manifest exists. Instead, it SHOULD link to the authoritative MCP source and describe the agent's intended relationship to those tools.
 
+OpenIdentity does not redefine MCP tools. It discovers and links to authoritative MCP servers and tool catalogs from one portable manifest, optionally adding identity, trust, and authorization context around those links.
+
 ### A2A agent cards
 
 Agent-to-agent (A2A) agent cards describe how agents present capabilities and communication details to other agents. OpenIdentity can link to A2A agent cards or include summary metadata that helps another agent decide whether to initiate a conversation, delegate a task, or request verification.
 
 Where an A2A card is the runtime-facing discovery document, OpenIdentity can act as the broader identity and trust manifest around it.
+
+OpenIdentity does not redefine A2A agent cards. It discovers and links to authoritative A2A agent cards from one portable manifest, optionally adding identity, trust, and verification context around those links.
 
 ### WorkOS-style auth metadata
 
@@ -131,6 +135,24 @@ tools:
   - type: mcp
     name: example-tools
     url: https://mcp.example.com
+mcp:
+  - name: example-tools
+    endpoint_url: https://mcp.example.com
+    transport: streamable-http
+    auth_scopes:
+      - tools:read
+      - tools:invoke
+    tool_categories:
+      - research
+      - workflow
+    description: MCP server exposing Example Assistant's approved research and workflow tools.
+a2a:
+  agent_card_url: https://example.com/.well-known/agent-card.json
+  interaction_modes:
+    - task-delegation
+    - conversational
+  capabilities_summary: Handles research briefs, source collection, and workflow automation requests.
+  verification_status: signed-card
 memory:
   - provider: example-memory
     type: vector
@@ -204,7 +226,67 @@ memory:
 
 Consumers MUST interpret memory entries as pointers and access instructions only. If a memory reference requires authorization, the consumer MUST obtain access through the declared provider or a compatible authorization flow rather than relying on any credential embedded in the OpenIdentity file.
 
-## 6. Security model
+## 6. MCP server references
+
+OpenIdentity MCP entries define references to MCP servers and related discovery metadata. They are intended to help readers find the MCP endpoint, understand the intended tool surface at a high level, and determine which authorization scopes may be required before connecting.
+
+OpenIdentity does not redefine MCP tools, tool schemas, prompts, resources, or server-specific capability documents. When an MCP server exposes its own authoritative tool catalog or discovery endpoint, consumers SHOULD treat that MCP source as authoritative. OpenIdentity SHOULD link to it from one portable manifest and MAY summarize the relationship for identity, trust, and authorization review.
+
+Each MCP entry SHOULD include:
+
+- `name`: The MCP server name.
+- `endpoint_url`: The endpoint URL where the MCP server or its discovery document can be reached.
+- `transport`: The MCP transport type, such as `stdio`, `streamable-http`, `sse`, or another transport supported by the MCP implementation.
+- `auth_scopes`: Required or expected authorization scopes for connecting to the server or invoking the referenced tools. Public servers with no required scopes MAY use an empty list.
+- `tool_categories`: Human-readable categories for the tools exposed by the server, such as `research`, `filesystem`, `payments`, `calendar`, or `customer-support`.
+- `description`: A human-readable summary of the server, its intended use, and any important operational constraints.
+
+Example:
+
+```yaml
+mcp:
+  - name: example-tools
+    endpoint_url: https://mcp.example.com
+    transport: streamable-http
+    auth_scopes:
+      - tools:read
+      - tools:invoke
+    tool_categories:
+      - research
+      - workflow
+    description: MCP server exposing Example Assistant's approved research and workflow tools.
+```
+
+Consumers MUST NOT infer that every tool in an MCP server is authorized merely because the server is listed in OpenIdentity. Authorization remains governed by the MCP server, the declared or negotiated scopes, and any external policy or consent system.
+
+## 7. A2A agent card references
+
+OpenIdentity A2A entries define references to A2A agent cards and summary metadata that can help another agent or runtime decide whether to inspect the card, initiate an interaction, or request additional verification.
+
+OpenIdentity does not redefine A2A agent cards, interaction contracts, or runtime communication details. Where an A2A agent card is available, consumers SHOULD treat the linked card as the authoritative runtime-facing discovery document. OpenIdentity SHOULD link to it from one portable manifest and MAY provide identity, trust, and verification context around the link.
+
+The `a2a` section SHOULD include:
+
+- `agent_card_url`: The URL of the authoritative A2A agent card.
+- `interaction_modes`: Supported interaction modes, such as `conversational`, `task-delegation`, `event-driven`, or `human-mediated`.
+- `capabilities_summary`: A human-readable summary of the agent capabilities represented by the linked card.
+- `verification_status`: The current verification state of the linked card or relationship, such as `unverified`, `domain-verified`, `signed-card`, or `third-party-verified`.
+
+Example:
+
+```yaml
+a2a:
+  agent_card_url: https://example.com/.well-known/agent-card.json
+  interaction_modes:
+    - task-delegation
+    - conversational
+  capabilities_summary: Handles research briefs, source collection, and workflow automation requests.
+  verification_status: signed-card
+```
+
+Consumers SHOULD verify the linked card, domain, signature, issuer, or other declared trust signal before relying on A2A capabilities for sensitive delegation or access decisions.
+
+## 8. Security model
 
 OpenIdentity is a discovery and verification aid, not a secret store or standalone access-control system.
 
@@ -232,7 +314,7 @@ Any linked credential, claim, tool authorization, memory grant, or wallet associ
 
 Consumers MUST NOT treat a manifest's claims as true solely because they appear in the file. Consumers SHOULD verify signatures, domains, issuer trust, organization membership, consent, and runtime behavior before granting access or relying on sensitive claims.
 
-## 7. Versioning
+## 9. Versioning
 
 OpenIdentity starts with:
 
